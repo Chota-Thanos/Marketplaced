@@ -80,14 +80,34 @@ class CategoryController extends Controller
 
     public function destroy($id)
     {
-        $category = Category::find($id);
+        $category = Category::withCount(['products', 'children'])->find($id);
 
         if (! $category) {
             return response()->json(['status' => 'error', 'message' => 'Category not found'], 404);
         }
 
-        $category->delete();
+        if ($category->products_count > 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => "Cannot delete category '{$category->name}' because it contains {$category->products_count} active product(s). Please delete or reassign those products first."
+            ], 422);
+        }
 
-        return response()->json(['status' => 'success', 'message' => 'Category deleted successfully']);
+        if ($category->children_count > 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => "Cannot delete category '{$category->name}' because it contains sub-categories. Please reassign or delete the sub-categories first."
+            ], 422);
+        }
+
+        try {
+            $category->delete();
+            return response()->json(['status' => 'success', 'message' => 'Category deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete category due to associated database items: '.$e->getMessage()
+            ], 422);
+        }
     }
 }
