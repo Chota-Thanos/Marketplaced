@@ -13,9 +13,16 @@ class PostgresSearchEngine implements SearchEngine
             ->where('status', 'ACTIVE');
 
         if (!empty($query)) {
-            // Using the tsvector column generated in the migration
-            $products->whereRaw("search_vector @@ plainto_tsquery('english', ?)", [$query])
-                     ->orderByRaw("ts_rank(search_vector, plainto_tsquery('english', ?)) DESC", [$query]);
+            if (\Illuminate\Support\Facades\DB::getDriverName() === 'pgsql') {
+                $products->whereRaw("search_vector @@ plainto_tsquery('english', ?)", [$query])
+                         ->orderByRaw("ts_rank(search_vector, plainto_tsquery('english', ?)) DESC", [$query]);
+            } else {
+                $products->where(function ($q) use ($query) {
+                    $q->where('title', 'like', "%{$query}%")
+                      ->orWhere('brand', 'like', "%{$query}%")
+                      ->orWhere('description', 'like', "%{$query}%");
+                });
+            }
         }
 
         // Apply filters
