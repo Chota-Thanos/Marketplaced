@@ -133,6 +133,7 @@ export default function HomeClient({ categories, products, hasReels = false, her
 
       {/* 11. AI SHOPPING AGENT COPILOT */}
       <AIAgentCopilot
+        products={products}
         onOpenCompare={(prods) => { setCompareList(prods); setIsCompareModalOpen(true); }}
         onAddToCart={handleAddToCart}
       />
