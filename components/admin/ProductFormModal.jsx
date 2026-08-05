@@ -564,6 +564,85 @@ export default function ProductFormModal({ isOpen, onClose, product, categories,
                   />
                 </div>
 
+                {/* CATEGORY-LINKED FILTER ATTRIBUTES */}
+                {(() => {
+                  const selectedCat = categories.find(c => String(c.id) === String(form.categoryId) || c.slug === form.categoryId);
+                  const filterConfig = selectedCat?.filterConfig || selectedCat?.filter_config;
+                  const groups = filterConfig?.groups || [];
+
+                  if (!groups.length) return null;
+
+                  return (
+                    <div className="bg-accent/5 border border-accent/20 rounded-card p-4 space-y-3 col-span-full">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-black text-ink uppercase tracking-wider flex items-center gap-1.5">
+                          <SlidersHorizontal className="w-3.5 h-3.5 text-accent" />
+                          Category Filter Attributes ({selectedCat.name})
+                        </h4>
+                        <span className="text-[10px] text-ink-subtle font-medium">Click options to tag product for category sidebar filters</span>
+                      </div>
+
+                      <div className="space-y-3">
+                        {groups.map(group => (
+                          <div key={group.id} className="space-y-1.5">
+                            <span className="text-[11px] font-bold text-ink-muted">{group.label}</span>
+                            <div className="flex flex-wrap gap-1.5">
+                              {(group.options || []).map(opt => {
+                                const tagVal = opt.value || opt.label;
+                                const isSelected = form.lifestyleBadges.includes(tagVal) || form.lifestyleBadges.includes(opt.label) || (group.id === 'brand' && form.brand === tagVal);
+
+                                const toggleAttribute = () => {
+                                  if (group.id === 'brand') {
+                                    setField('brand', isSelected ? '' : tagVal);
+                                  }
+                                  if (isSelected) {
+                                    setForm(f => ({
+                                      ...f,
+                                      lifestyleBadges: f.lifestyleBadges.filter(b => b !== tagVal && b !== opt.label)
+                                    }));
+                                  } else {
+                                    setForm(f => ({
+                                      ...f,
+                                      lifestyleBadges: Array.from(new Set([...f.lifestyleBadges, tagVal, opt.label]))
+                                    }));
+                                    if ((group.id || '').toLowerCase().includes('size') || group.label.toLowerCase().includes('size')) {
+                                      setForm(f => {
+                                        const exists = f.variants.some(v => (v.size || '').toLowerCase() === tagVal.toLowerCase());
+                                        if (!exists) {
+                                          return {
+                                            ...f,
+                                            variants: [...f.variants, { color: '', size: tagVal, sku: '', stock: '10', price: f.price || '', mrp: f.mrp || '' }]
+                                          };
+                                        }
+                                        return f;
+                                      });
+                                    }
+                                  }
+                                };
+
+                                return (
+                                  <button
+                                    key={opt.value || opt.label}
+                                    type="button"
+                                    onClick={toggleAttribute}
+                                    className={`px-3 py-1 rounded-pill text-xs font-bold border transition-all ${
+                                      isSelected
+                                        ? 'bg-accent text-white border-accent shadow-subtle'
+                                        : 'bg-surface text-ink border-line hover:border-line-strong'
+                                    }`}
+                                  >
+                                    {isSelected ? '✓ ' : '+ '}{opt.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-ink-muted mb-1.5 font-bold" htmlFor="productformmodal-f5">Offer Price (₹) <span className="text-danger">*</span></label>
