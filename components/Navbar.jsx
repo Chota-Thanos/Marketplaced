@@ -89,91 +89,6 @@ export default function Navbar({
   return (
     <header className="sticky top-0 z-50 bg-surface text-ink border-b border-line font-sans shadow-subtle">
       
-      {/* 1. TOP ANNOUNCEMENT BAR (Clean Nordic Style) */}
-      <div className="bg-inverse py-1.5 px-4 text-xs font-bold text-ink-inverse flex items-center justify-between">
-        <div className="flex items-center gap-4 flex-wrap">
-          {/* Store Location Picker */}
-          <div className="relative">
-            <button
-              onClick={() => setShowStoreMenu(!showStoreMenu)}
-              className="flex items-center gap-1.5 text-success hover:text-ink-inverse transition font-extrabold"
-            >
-              <MapPin className="w-3.5 h-3.5" />
-              <span>{selectedStore}</span>
-              <ChevronDown className="w-3 h-3" />
-            </button>
-
-            {showStoreMenu && (
-              <div className="absolute left-0 mt-1.5 w-56 bg-surface border border-line rounded-card shadow-panel py-2 z-50 text-ink">
-                <div className="px-3.5 py-1 border-b border-line mb-1">
-                  <p className="text-[10px] font-black text-ink-subtle uppercase tracking-wider">Select Nearby Store</p>
-                </div>
-                {stores.map((st) => (
-                  <button
-                    key={st}
-                    onClick={() => {
-                      setSelectedStore(st);
-                      setShowStoreMenu(false);
-                    }}
-                    className="w-full text-left px-3.5 py-2 text-xs font-bold text-ink hover:bg-surface-sunken flex items-center justify-between transition"
-                  >
-                    <span>{st}</span>
-                    {selectedStore === st && <CheckCircle2 className="w-4 h-4 text-success" />}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <span className="hidden sm:inline opacity-30">|</span>
-
-          {/* Delivery Status */}
-          <div className="hidden sm:flex items-center gap-1.5 text-success">
-            <Truck className="w-3.5 h-3.5" />
-            <span>Express Shiprocket Delivery: Delivered Tomorrow by 4:00 PM</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4">
-          {/* Language selector */}
-          <div className="relative">
-            <button 
-              onClick={() => setShowLangMenu(!showLangMenu)}
-              className="flex items-center gap-1 text-ink-subtle hover:text-ink-inverse transition font-bold"
-            >
-              <Globe className="w-3.5 h-3.5 text-accent" />
-              <span>{selectedLang}</span>
-            </button>
-
-            {showLangMenu && (
-              <div className="absolute right-0 mt-1 w-48 bg-surface border border-line rounded-card shadow-panel py-1.5 z-50 text-ink">
-                {languages.map((lang) => (
-                  <button
-                    key={lang}
-                    onClick={() => {
-                      setSelectedLang(lang);
-                      setShowLangMenu(false);
-                    }}
-                    className="w-full text-left px-3.5 py-2 text-xs font-semibold text-ink hover:bg-surface-sunken flex items-center justify-between transition"
-                  >
-                    {lang}
-                    {selectedLang === lang && <CheckCircle2 className="w-4 h-4 text-success" />}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* View Switcher */}
-          <button
-            onClick={onToggleView}
-            className="flex items-center gap-1.5 bg-danger hover:bg-danger text-ink-inverse px-3 py-1 rounded-pill text-xs font-extrabold transition shadow-subtle"
-          >
-            <LayoutDashboard className="w-3.5 h-3.5" />
-            <span>{currentView === 'store' ? 'Staff Admin' : 'Storefront'}</span>
-          </button>
-        </div>
-      </div>
 
       {/* 2. MAIN NORDIC MINIMALIST HEADER BAR */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-6">
@@ -200,43 +115,31 @@ export default function Navbar({
 
           {/* Desktop Nav Links */}
           <nav className="hidden lg:flex items-center gap-6 text-xs font-bold text-ink-muted">
-            
-            {/* Why BazaarX */}
-            <button 
-              onClick={() => setActiveDropdown(activeDropdown === 'why' ? null : 'why')}
-              className="flex items-center gap-1 hover:text-ink transition py-2"
-            >
-              <span>{`Why ${brand.name}`}</span>
-              <ChevronDown className="w-3.5 h-3.5 text-ink-subtle" />
-            </button>
 
-            {/* Products Dropdown Toggle (Matches Clean Shopify Style) */}
+            {/* Shop by Category mega-menu */}
             <button
               onClick={() => setActiveDropdown(activeDropdown === 'products' ? null : 'products')}
               className={`flex items-center gap-1.5 transition py-2 font-black ${
                 activeDropdown === 'products' ? 'text-ink border-b-2 border-line-strong' : 'hover:text-ink'
               }`}
             >
-              <span>Products</span>
+              <span>Categories</span>
               <ChevronDown className={`w-3.5 h-3.5 text-ink-subtle transition-transform ${activeDropdown === 'products' ? 'rotate-180 text-ink' : ''}`} />
             </button>
+
+            <Link href="/search?sort=newest" className="hover:text-ink transition py-2">New Arrivals</Link>
+            <Link href="/search?sort=rating" className="hover:text-ink transition py-2">Best Sellers</Link>
+            <Link href="/search" className="hover:text-ink transition py-2 flex items-center gap-1">
+              <Zap className="w-3.5 h-3.5 text-warning" />
+              <span>Sale</span>
+            </Link>
 
             {hasReels && (
               <Link href="/reels" className="hover:text-ink transition py-2 flex items-center gap-1">
                 <Video className="w-3.5 h-3.5 text-accent" />
-                <span>Shoppertainment Reels</span>
+                <span>Reels</span>
               </Link>
             )}
-
-            <Link href="/admin" className="hover:text-ink transition py-2">
-              Staff Operations
-            </Link>
-
-            {/* Pill Badge Tag: Spring '26 Edition */}
-            <div className="flex items-center gap-2 bg-success-soft hover:bg-success-soft text-success px-3.5 py-1.5 rounded-pill border border-success text-xs font-bold transition cursor-pointer">
-              <span className="w-2 h-2 rounded-pill bg-success animate-pulse" />
-              <span>{brand.editionLabel}</span>
-            </div>
           </nav>
         </div>
 
@@ -317,7 +220,7 @@ export default function Navbar({
             {/* Top 4-Column Section */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 pb-8 border-b border-line">
               
-              {/* COLUMN 1: SHOP BY CATEGORY & RUN YOUR BUSINESS */}
+              {/* COLUMN 1: SHOP BY CATEGORY */}
               <div className="space-y-6">
                 <div>
                   <h4 className="text-[11px] font-black text-success uppercase tracking-widest mb-3">
@@ -349,35 +252,35 @@ export default function Navbar({
                       </Link>
                     </li>
                     <li>
-                      <Link href="/category/wellness" onClick={() => setActiveDropdown(null)} className="flex items-center gap-2.5 text-ink-muted hover:text-ink transition group">
+                      <Link href="/category/casual-wear" onClick={() => setActiveDropdown(null)} className="flex items-center gap-2.5 text-ink-muted hover:text-ink transition group">
                         <Leaf className="w-4 h-4 text-success" />
-                        <span>Ayurveda & Glow Wellness</span>
+                        <span>Casual Wear & Everyday</span>
                       </Link>
                     </li>
                   </ul>
                 </div>
 
                 <div>
-                  <h4 className="text-[11px] font-black text-success uppercase tracking-widest mb-3">
-                    RUN YOUR BUSINESS
+                  <h4 className="text-[11px] font-black text-accent uppercase tracking-widest mb-3">
+                    QUICK LINKS
                   </h4>
                   <ul className="space-y-2.5 text-xs font-semibold">
                     <li>
-                      <Link href="/admin" onClick={() => setActiveDropdown(null)} className="flex items-center gap-2.5 text-ink-muted hover:text-ink transition">
-                        <Package className="w-4 h-4 text-ink-subtle" />
-                        <span>Orders & Inventory Kanban</span>
+                      <Link href="/search?sort=newest" onClick={() => setActiveDropdown(null)} className="flex items-center gap-2.5 text-ink-muted hover:text-ink transition">
+                        <Flame className="w-4 h-4 text-danger" />
+                        <span>New Arrivals</span>
                       </Link>
                     </li>
                     <li>
-                      <Link href="/admin" onClick={() => setActiveDropdown(null)} className="flex items-center gap-2.5 text-ink-muted hover:text-ink transition">
-                        <Truck className="w-4 h-4 text-ink-subtle" />
-                        <span>Shiprocket Courier Labels</span>
+                      <Link href="/search?sort=rating" onClick={() => setActiveDropdown(null)} className="flex items-center gap-2.5 text-ink-muted hover:text-ink transition">
+                        <Award className="w-4 h-4 text-warning" />
+                        <span>Best Sellers</span>
                       </Link>
                     </li>
                     <li>
-                      <Link href="/admin" onClick={() => setActiveDropdown(null)} className="flex items-center gap-2.5 text-ink-muted hover:text-ink transition">
-                        <MessageSquare className="w-4 h-4 text-ink-subtle" />
-                        <span>WhatsApp Business Support</span>
+                      <Link href="/search" onClick={() => setActiveDropdown(null)} className="flex items-center gap-2.5 text-ink-muted hover:text-ink transition">
+                        <Zap className="w-4 h-4 text-success" />
+                        <span>Today's Deals</span>
                       </Link>
                     </li>
                   </ul>
@@ -580,8 +483,14 @@ export default function Navbar({
               Shoppertainment Reels
             </Link>
           )}
-          <Link href="/admin" onClick={() => setShowMobileMenu(false)} className="block py-2 text-sm font-bold text-ink">
-            Staff Admin Operations
+          <Link href="/search?sort=newest" onClick={() => setShowMobileMenu(false)} className="block py-2 text-sm font-bold text-ink">
+            New Arrivals
+          </Link>
+          <Link href="/search?sort=rating" onClick={() => setShowMobileMenu(false)} className="block py-2 text-sm font-bold text-ink">
+            Best Sellers
+          </Link>
+          <Link href="/account/orders" onClick={() => setShowMobileMenu(false)} className="block py-2 text-sm font-bold text-ink">
+            My Orders
           </Link>
         </div>
       )}

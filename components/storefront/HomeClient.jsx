@@ -10,7 +10,6 @@ import ProductRow from './home/ProductRow';
 import ShoppertainmentPromo from './home/ShoppertainmentPromo';
 import TrustBanner from './home/TrustBanner';
 import FloatingCompareBar from './home/FloatingCompareBar';
-import FloatingPromoBox from './home/FloatingPromoBox';
 
 import ProductComparisonModal from '../ProductComparisonModal';
 import AIAgentCopilot from '../AIAgentCopilot';
@@ -20,7 +19,7 @@ export default function HomeClient({ categories, products, hasReels = false, her
   const { handleAddToCart, setIsVoiceOpen } = useStore();
   const [reviewProduct, setReviewProduct] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
-  const [showFloatingPromo, setShowFloatingPromo] = useState(true);
+  const [showFloatingPromo, setShowFloatingPromo] = useState(false); // disabled
 
   // Comparison State
   const [compareList, setCompareList] = useState([]);
