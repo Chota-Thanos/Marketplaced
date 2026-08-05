@@ -56,12 +56,8 @@ export default function HomeClient({ categories, products, hasReels = false, her
       {/* 1. PROMOTIONAL HERO BANNER CAROUSEL */}
       <HeroBanner slides={heroBannerSlides} />
 
-      {/* 2. COMPACT CATEGORY ICON ROW */}
-      <CategoryGrid
-        categories={categories}
-        activeCategory={activeCategory}
-        setActiveCategory={setActiveCategory}
-      />
+      {/* 2. SHOP BY CATEGORY GRID */}
+      <CategoryGrid categories={categories} />
 
       {/* 3. RECOMMENDED FOR YOU */}
       <ProductRow

@@ -1,12 +1,20 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React from 'react';
+import Link from 'next/link';
 import * as Icons from 'lucide-react';
 
-export default function CategoryGrid({ categories, activeCategory, setActiveCategory }) {
-  const scrollRef = useRef(null);
+const CATEGORY_STYLES = [
+  { bg: 'from-rose-500/15 to-amber-500/15', border: 'border-rose-500/30', text: 'text-rose-600 dark:text-rose-400' },
+  { bg: 'from-blue-500/15 to-cyan-500/15', border: 'border-blue-500/30', text: 'text-blue-600 dark:text-blue-400' },
+  { bg: 'from-emerald-500/15 to-teal-500/15', border: 'border-emerald-500/30', text: 'text-emerald-600 dark:text-emerald-400' },
+  { bg: 'from-violet-500/15 to-purple-500/15', border: 'border-violet-500/30', text: 'text-violet-600 dark:text-violet-400' },
+  { bg: 'from-orange-500/15 to-yellow-500/15', border: 'border-orange-500/30', text: 'text-orange-600 dark:text-orange-400' },
+  { bg: 'from-indigo-500/15 to-sky-500/15', border: 'border-indigo-500/30', text: 'text-indigo-600 dark:text-indigo-400' },
+];
 
-  const renderCategoryIcon = (cat) => {
+export default function CategoryGrid({ categories = [] }) {
+  const renderCategoryIcon = (cat, style) => {
     const iconName = cat.iconUrl || cat.icon_url;
 
     if (iconName && (iconName.startsWith('http://') || iconName.startsWith('https://'))) {
@@ -14,80 +22,79 @@ export default function CategoryGrid({ categories, activeCategory, setActiveCate
     }
     if (iconName && Icons[iconName]) {
       const IconComponent = Icons[iconName];
-      return <IconComponent className="w-5 h-5" />;
+      return <IconComponent className={`w-6 h-6 ${style.text}`} />;
     }
     const slug = (cat.slug || '').toLowerCase();
-    if (slug.includes('casual') || slug.includes('shirt')) return <Icons.Shirt className="w-5 h-5" />;
-    if (slug.includes('electronic') || slug.includes('tech')) return <Icons.Headphones className="w-5 h-5" />;
-    if (slug.includes('footwear') || slug.includes('shoe')) return <Icons.Zap className="w-5 h-5" />;
-    if (slug.includes('decor') || slug.includes('home')) return <Icons.Award className="w-5 h-5" />;
-    if (slug.includes('wellness') || slug.includes('glow')) return <Icons.Leaf className="w-5 h-5" />;
-    return <Icons.Sparkles className="w-5 h-5" />;
+    if (slug.includes('casual') || slug.includes('shirt')) return <Icons.Shirt className={`w-6 h-6 ${style.text}`} />;
+    if (slug.includes('electronic') || slug.includes('tech')) return <Icons.Headphones className={`w-6 h-6 ${style.text}`} />;
+    if (slug.includes('footwear') || slug.includes('shoe')) return <Icons.Zap className={`w-6 h-6 ${style.text}`} />;
+    if (slug.includes('decor') || slug.includes('home')) return <Icons.Award className={`w-6 h-6 ${style.text}`} />;
+    if (slug.includes('wellness') || slug.includes('glow')) return <Icons.Leaf className={`w-6 h-6 ${style.text}`} />;
+    return <Icons.Sparkles className={`w-6 h-6 ${style.text}`} />;
   };
 
+  if (!categories.length) return null;
+
   return (
-    <section className="space-y-3">
+    <section className="space-y-4">
       {/* Section Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Icons.LayoutGrid className="w-4 h-4 text-ink-subtle" />
-          <h2 className="text-base font-black text-ink tracking-tight">Shop by Category</h2>
+          <Icons.LayoutGrid className="w-5 h-5 text-accent" />
+          <h2 className="text-xl font-black text-ink tracking-tight">Shop by Category</h2>
         </div>
-        {activeCategory !== 'all' && (
-          <button
-            onClick={() => setActiveCategory('all')}
-            className="text-xs text-danger font-extrabold hover:underline"
-          >
-            Clear Filter
-          </button>
-        )}
+        <Link
+          href="/search"
+          className="text-xs font-black text-accent hover:underline flex items-center gap-1"
+        >
+          View All Categories →
+        </Link>
       </div>
 
-      {/* Compact horizontal scroll icon row */}
-      <div
-        ref={scrollRef}
-        className="flex gap-3 overflow-x-auto pb-1"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {/* All */}
-        <button
-          onClick={() => setActiveCategory('all')}
-          className={`flex-none flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-control border transition-all duration-200 min-w-[70px] ${
-            activeCategory === 'all'
-              ? 'bg-ink text-ink-inverse border-ink shadow-card'
-              : 'bg-surface text-ink border-line hover:border-line-strong hover:bg-surface-muted'
-          }`}
-        >
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-            activeCategory === 'all' ? 'bg-white/10' : 'bg-surface-muted'
-          }`}>
-            <Icons.Grid3x3 className="w-5 h-5" />
-          </div>
-          <span className="text-[10px] font-black whitespace-nowrap">All</span>
-        </button>
+      {/* Visually Appealing Category Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5 sm:gap-4">
+        {categories.map((cat, idx) => {
+          const style = CATEGORY_STYLES[idx % CATEGORY_STYLES.length];
+          const itemCount = cat._count?.products ?? cat.products_count ?? 0;
 
-        {categories.map((cat) => {
-          const isActive = activeCategory === cat.slug;
           return (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(isActive ? 'all' : cat.slug)}
-              aria-pressed={isActive}
-              className={`flex-none flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-control border transition-all duration-200 min-w-[70px] ${
-                isActive
-                  ? 'bg-ink text-ink-inverse border-ink shadow-card'
-                  : 'bg-surface text-ink border-line hover:border-line-strong hover:bg-surface-muted'
-              }`}
+            <Link
+              key={cat.id || cat.slug}
+              href={`/category/${cat.slug}`}
+              className="group relative overflow-hidden rounded-panel border border-line bg-surface hover:border-accent/50 hover:shadow-panel transition-all duration-300 transform hover:-translate-y-1 p-4 flex flex-col items-center text-center"
             >
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                isActive ? 'bg-white/10' : 'bg-surface-muted'
-              }`}>
-                {renderCategoryIcon(cat)}
+              {/* Optional Background Banner Image Blur */}
+              {cat.bannerUrl && (
+                <div
+                  className="absolute inset-0 opacity-5 group-hover:opacity-20 transition duration-500 scale-105"
+                  style={{
+                    backgroundImage: `url(${cat.bannerUrl})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
+                />
+              )}
+
+              {/* Icon Container with Gradient Background */}
+              <div className={`relative z-10 w-14 h-14 rounded-full bg-gradient-to-br ${style.bg} border ${style.border} flex items-center justify-center transition transform group-hover:scale-110 shadow-subtle`}>
+                {renderCategoryIcon(cat, style)}
               </div>
-              <span className="text-[10px] font-black whitespace-nowrap max-w-[64px] truncate text-center">
-                {cat.name.split(' ')[0]}
+
+              {/* Category Name */}
+              <div className="relative z-10 mt-3 w-full">
+                <h3 className="text-xs sm:text-sm font-extrabold text-ink group-hover:text-accent transition truncate">
+                  {cat.name}
+                </h3>
+                <p className="text-[11px] text-ink-subtle font-semibold mt-0.5">
+                  {itemCount} {itemCount === 1 ? 'Item' : 'Items'}
+                </p>
+              </div>
+
+              {/* Hover Call-to-Action */}
+              <span className="relative z-10 text-[10px] font-black text-accent opacity-0 group-hover:opacity-100 transition-opacity duration-200 mt-1.5 flex items-center gap-0.5">
+                Explore <Icons.ArrowRight className="w-3 h-3" />
               </span>
-            </button>
+            </Link>
           );
         })}
       </div>
