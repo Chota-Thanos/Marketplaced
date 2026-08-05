@@ -35,7 +35,7 @@ export default function CategoryGrid({ categories, activeCategory, setActiveCate
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-control bg-ink/5 flex items-center justify-center text-ink">
-            <LayoutGrid className="w-4 h-4" />
+            <Icons.LayoutGrid className="w-4 h-4" />
           </div>
           <div>
             <h2 className="text-xl font-black text-ink tracking-tight">Shop by Category</h2>
