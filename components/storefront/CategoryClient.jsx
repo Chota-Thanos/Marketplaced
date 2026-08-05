@@ -24,21 +24,28 @@ const SORT_OPTIONS = [
 ];
 
 function applyDynamicFilters(products, activeFilters, filterConfig) {
-  const groups = filterConfig?.groups || [];
+  const customGroups = filterConfig?.groups || [];
+  const defaultPriceGroup = { id: 'price', label: 'Price Range', type: 'range' };
+  const hasCustomPrice = customGroups.some(g => g.id === 'price' || g.type === 'range');
+  const groups = hasCustomPrice ? customGroups : [defaultPriceGroup, ...customGroups];
+
   let result = [...products];
 
   for (const group of groups) {
     const val = activeFilters[group.id];
-    if (!val || (Array.isArray(val) && val.length === 0)) continue;
+    if (!val) continue;
 
-    if (group.type === 'radio') {
+    if (group.type === 'range' || group.id === 'price') {
+      if (val.max !== undefined) {
+        result = result.filter(p => Number(p.price || 0) <= val.max);
+      }
+    } else if (group.type === 'radio') {
       result = result.filter(p => {
         const pVal = (p[group.id] || p.tags?.join(' ') || '').toLowerCase();
         return pVal.includes(String(val).toLowerCase());
       });
-    }
-
-    if (group.type === 'checkbox' || group.type === 'chip') {
+    } else if (group.type === 'checkbox' || group.type === 'chip') {
+      if (!Array.isArray(val) || val.length === 0) continue;
       result = result.filter(p => {
         const variants = p.variants || [];
         const matchesVariant = val.some(v =>
@@ -52,10 +59,6 @@ function applyDynamicFilters(products, activeFilters, filterConfig) {
         );
         return matchesVariant || matchesTags;
       });
-    }
-
-    if (group.type === 'range' && val.max !== undefined) {
-      result = result.filter(p => Number(p.price || 0) <= val.max);
     }
   }
 
@@ -85,6 +88,11 @@ export default function CategoryClient({ category, products }) {
 
   const filterConfig = category.filterConfig || category.filter_config || null;
 
+  const maxCatalogPrice = useMemo(() => {
+    if (!products || products.length === 0) return 10000;
+    return Math.max(...products.map(p => Number(p.price || 0)));
+  }, [products]);
+
   const handleToggleCompare = (product) => {
     setCompareList((prev) => {
       const exists = prev.find((p) => p.id === product.id);
@@ -95,36 +103,44 @@ export default function CategoryClient({ category, products }) {
   };
 
   const visibleProducts = useMemo(() => {
-    let result = products;
-    if (filterConfig) {
-      result = applyDynamicFilters(result, dynamicFilters, filterConfig);
-    }
+    let result = applyDynamicFilters(products, dynamicFilters, filterConfig);
     return sortProducts(result, sort);
   }, [products, dynamicFilters, filterConfig, sort]);
 
   // Build active filter chips for display
   const activeChips = useMemo(() => {
     const chips = [];
-    const groups = filterConfig?.groups || [];
+    const customGroups = filterConfig?.groups || [];
+    const defaultPriceGroup = { id: 'price', label: 'Price Range', type: 'range', max: maxCatalogPrice };
+    const hasCustomPrice = customGroups.some(g => g.id === 'price' || g.type === 'range');
+    const groups = hasCustomPrice ? customGroups : [defaultPriceGroup, ...customGroups];
+
     for (const group of groups) {
       const val = dynamicFilters[group.id];
-      if (!val || (Array.isArray(val) && val.length === 0)) continue;
-      if (Array.isArray(val)) {
+      if (!val) continue;
+
+      if (group.type === 'range' || group.id === 'price') {
+        if (val.max !== undefined && val.max < (group.max || maxCatalogPrice)) {
+          chips.push({ groupId: group.id, value: 'max', label: `Under ₹${val.max.toLocaleString('en-IN')}` });
+        }
+      } else if (Array.isArray(val) && val.length > 0) {
         val.forEach(v => {
           const opt = (group.options || []).find(o => o.value === v);
           chips.push({ groupId: group.id, value: v, label: `${group.label}: ${opt?.label || v}` });
         });
-      } else if (group.type === 'radio') {
+      } else if (group.type === 'radio' && val) {
         const opt = (group.options || []).find(o => o.value === val);
         chips.push({ groupId: group.id, value: val, label: `${group.label}: ${opt?.label || val}` });
       }
     }
     return chips;
-  }, [dynamicFilters, filterConfig]);
+  }, [dynamicFilters, filterConfig, maxCatalogPrice]);
 
   const removeChip = (groupId, value) => {
     const current = dynamicFilters[groupId];
-    if (Array.isArray(current)) {
+    if (value === 'max' || typeof current !== 'object') {
+      setDynamicFilters(f => ({ ...f, [groupId]: undefined }));
+    } else if (Array.isArray(current)) {
       setDynamicFilters(f => ({ ...f, [groupId]: current.filter(v => v !== value) }));
     } else {
       setDynamicFilters(f => ({ ...f, [groupId]: undefined }));
@@ -133,7 +149,7 @@ export default function CategoryClient({ category, products }) {
 
   const clearAllFilters = () => setDynamicFilters({});
 
-  const hasDynamicFilters = filterConfig && (filterConfig.groups || []).length > 0;
+  const hasDynamicFilters = true; // Always show sidebar on category pages
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -240,6 +256,7 @@ export default function CategoryClient({ category, products }) {
               activeFilters={dynamicFilters}
               onChange={setDynamicFilters}
               onClearAll={clearAllFilters}
+              maxCatalogPrice={maxCatalogPrice}
             />
           </div>
         )}

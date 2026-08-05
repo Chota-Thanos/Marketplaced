@@ -1,23 +1,28 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, X, Sliders } from 'lucide-react';
 
-/**
- * Renders dynamic filter groups from a category's filterConfig.
- *
- * filterConfig shape:
- * {
- *   groups: [
- *     { id: 'gender', label: 'Gender', type: 'radio', options: [{label, value}] },
- *     { id: 'size',   label: 'Size',   type: 'chip',  options: [{label, value}] },
- *     { id: 'brand',  label: 'Brand',  type: 'checkbox', options: [{label, value}] },
- *     { id: 'price',  label: 'Price',  type: 'range', min: 0, max: 10000, step: 100 },
- *   ]
- * }
- */
-export default function DynamicFilters({ filterConfig, activeFilters, onChange, onClearAll }) {
-  const groups = filterConfig?.groups || [];
+const DEFAULT_PRICE_GROUP = {
+  id: 'price',
+  label: 'Price Range',
+  type: 'range',
+  min: 0,
+  max: 10000,
+  step: 100,
+};
+
+export default function DynamicFilters({ filterConfig, activeFilters, onChange, onClearAll, maxCatalogPrice = 10000 }) {
+  const customGroups = filterConfig?.groups || [];
+  const hasCustomPrice = customGroups.some(g => g.id === 'price' || g.type === 'range');
+  
+  const priceGroup = {
+    ...DEFAULT_PRICE_GROUP,
+    max: maxCatalogPrice > 0 ? Math.ceil(maxCatalogPrice / 500) * 500 : 10000
+  };
+
+  const groups = hasCustomPrice ? customGroups : [priceGroup, ...customGroups];
+
   const [collapsed, setCollapsed] = useState({});
 
   const toggle = (id) => setCollapsed(s => ({ ...s, [id]: !s[id] }));
@@ -39,21 +44,24 @@ export default function DynamicFilters({ filterConfig, activeFilters, onChange, 
     onChange({ ...activeFilters, [groupId]: { ...current, [key]: Number(value) } });
   };
 
-  const hasActiveFilters = Object.values(activeFilters).some(v =>
-    Array.isArray(v) ? v.length > 0 : v !== undefined && v !== null && v !== ''
-  );
-
-  if (!groups.length) return null;
+  const hasActiveFilters = Object.values(activeFilters).some(v => {
+    if (Array.isArray(v)) return v.length > 0;
+    if (typeof v === 'object' && v !== null) return v.max !== undefined || v.min !== undefined;
+    return v !== undefined && v !== null && v !== '';
+  });
 
   return (
-    <div className="space-y-0 border border-line rounded-panel overflow-hidden bg-surface">
+    <div className="space-y-0 border border-line rounded-panel overflow-hidden bg-surface shadow-subtle">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-line bg-surface-muted">
-        <span className="text-sm font-black text-ink uppercase tracking-wide">Filters</span>
+      <div className="flex items-center justify-between px-4 py-3.5 border-b border-line bg-surface-muted">
+        <span className="text-xs font-black text-ink uppercase tracking-wider flex items-center gap-1.5">
+          <Sliders className="w-3.5 h-3.5 text-accent" />
+          Filter Products
+        </span>
         {hasActiveFilters && (
           <button
             onClick={onClearAll}
-            className="text-xs font-black text-danger hover:underline flex items-center gap-1"
+            className="text-[11px] font-black text-danger hover:underline flex items-center gap-1"
           >
             <X className="w-3 h-3" />
             Clear All
@@ -84,9 +92,46 @@ export default function DynamicFilters({ filterConfig, activeFilters, onChange, 
             {!isCollapsed && (
               <div className="px-4 pb-4 space-y-2">
 
+                {/* RANGE SLIDER */}
+                {group.type === 'range' && (
+                  <div className="space-y-3 pt-1">
+                    <div className="flex items-center justify-between bg-surface-muted p-2.5 rounded-card border border-line">
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-extrabold text-ink-subtle uppercase">Max Price</span>
+                        <span className="text-xs font-black text-accent">
+                          ₹{(activeVal?.max ?? group.max ?? 10000).toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                      {activeVal?.max !== undefined && activeVal.max < group.max && (
+                        <button
+                          onClick={() => handleRange(group.id, 'max', group.max)}
+                          className="text-[10px] font-bold text-ink-subtle hover:text-danger"
+                        >
+                          Reset
+                        </button>
+                      )}
+                    </div>
+                    
+                    <input
+                      type="range"
+                      min={group.min ?? 0}
+                      max={group.max ?? 10000}
+                      step={group.step ?? 100}
+                      value={activeVal?.max ?? group.max ?? 10000}
+                      onChange={e => handleRange(group.id, 'max', e.target.value)}
+                      className="w-full h-2 rounded-pill bg-surface-sunken appearance-none cursor-pointer accent-accent"
+                    />
+
+                    <div className="flex justify-between text-[10px] text-ink-subtle font-bold px-0.5">
+                      <span>₹{(group.min ?? 0).toLocaleString('en-IN')}</span>
+                      <span>₹{(group.max ?? 10000).toLocaleString('en-IN')}</span>
+                    </div>
+                  </div>
+                )}
+
                 {/* CHECKBOX */}
                 {group.type === 'checkbox' && (group.options || []).map(opt => (
-                  <label key={opt.value} className="flex items-center gap-2.5 cursor-pointer group">
+                  <label key={opt.value} className="flex items-center gap-2.5 cursor-pointer group py-0.5">
                     <input
                       type="checkbox"
                       className="w-3.5 h-3.5 rounded border-line accent-accent cursor-pointer"
@@ -96,15 +141,12 @@ export default function DynamicFilters({ filterConfig, activeFilters, onChange, 
                     <span className="text-xs font-semibold text-ink group-hover:text-accent transition">
                       {opt.label}
                     </span>
-                    {opt.count !== undefined && (
-                      <span className="text-[10px] text-ink-subtle ml-auto">({opt.count})</span>
-                    )}
                   </label>
                 ))}
 
                 {/* RADIO */}
                 {group.type === 'radio' && (group.options || []).map(opt => (
-                  <label key={opt.value} className="flex items-center gap-2.5 cursor-pointer group">
+                  <label key={opt.value} className="flex items-center gap-2.5 cursor-pointer group py-0.5">
                     <input
                       type="radio"
                       name={group.id}
@@ -129,7 +171,7 @@ export default function DynamicFilters({ filterConfig, activeFilters, onChange, 
                           onClick={() => handleCheckbox(group.id, opt.value, !isActive)}
                           className={`px-2.5 py-1 rounded-control text-[11px] font-bold border transition-all ${
                             isActive
-                              ? 'bg-ink text-ink-inverse border-ink'
+                              ? 'bg-ink text-ink-inverse border-ink shadow-subtle'
                               : 'bg-surface text-ink border-line hover:border-line-strong'
                           }`}
                         >
@@ -137,25 +179,6 @@ export default function DynamicFilters({ filterConfig, activeFilters, onChange, 
                         </button>
                       );
                     })}
-                  </div>
-                )}
-
-                {/* RANGE */}
-                {group.type === 'range' && (
-                  <div className="space-y-3 pt-1">
-                    <div className="flex items-center justify-between text-xs font-bold text-ink">
-                      <span>₹{(activeVal?.min ?? group.min ?? 0).toLocaleString('en-IN')}</span>
-                      <span>₹{(activeVal?.max ?? group.max ?? 10000).toLocaleString('en-IN')}</span>
-                    </div>
-                    <input
-                      type="range"
-                      min={group.min ?? 0}
-                      max={group.max ?? 10000}
-                      step={group.step ?? 100}
-                      value={activeVal?.max ?? group.max ?? 10000}
-                      onChange={e => handleRange(group.id, 'max', e.target.value)}
-                      className="w-full accent-accent"
-                    />
                   </div>
                 )}
               </div>
