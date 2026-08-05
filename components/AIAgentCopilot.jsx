@@ -5,14 +5,8 @@ import {
   Bot, 
   X, 
   Send, 
-  Sparkles, 
   ShoppingBag, 
-  Scale, 
-  Zap, 
-  CheckCircle2, 
-  Star,
-  Tag,
-  ShieldCheck
+  Scale
 } from 'lucide-react';
 import { apiFetch, mapProduct } from '../lib/apiClient';
 
@@ -30,7 +24,6 @@ export default function AIAgentCopilot({ products: propProducts = [], onOpenComp
   const [inputMsg, setInputMsg] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 
-  // Fetch real products if prop is empty
   useEffect(() => {
     if (propProducts && propProducts.length > 0) {
       setProducts(propProducts);
@@ -67,12 +60,9 @@ export default function AIAgentCopilot({ products: propProducts = [], onOpenComp
 
       const query = textToSend.toLowerCase();
 
-      // Check if user is asking to compare
       if (query.includes("compare") || query.includes("vs") || query.includes("table")) {
-        // Pick top 2 or 3 products from store for comparison table
         let prodsToCompare = products.slice(0, 3);
         
-        // If specific category mentioned
         if (query.includes("ethnic") || query.includes("saree") || query.includes("dress")) {
           prodsToCompare = products.filter(p => (p.categoryName || '').toLowerCase().includes("ethnic")).slice(0, 3);
         } else if (query.includes("shoe") || query.includes("footwear")) {
@@ -86,9 +76,7 @@ export default function AIAgentCopilot({ products: propProducts = [], onOpenComp
         agentReply = `Here is a side-by-side comparison table of ${prodsToCompare.length} featured products from our catalog:`;
         comparisonTable = prodsToCompare;
         matchedProds = prodsToCompare;
-      }
-      // Search by category or query term
-      else {
+      } else {
         const matching = products.filter(p => {
           const title = (p.title || '').toLowerCase();
           const cat = (p.categoryName || '').toLowerCase();
@@ -104,7 +92,7 @@ export default function AIAgentCopilot({ products: propProducts = [], onOpenComp
           agentReply = `I found ${matching.length} verified item(s) matching "${textToSend}" in our store catalog:`;
           matchedProds = matching.slice(0, 3);
         } else {
-          agentReply = `I searched our live store catalog for "${textToSend}". Here are our current top-rated verified products with instant UPI checkout:`;
+          agentReply = `I searched our live store catalog for "${textToSend}". Here are our current top-rated verified products:`;
           matchedProds = products.slice(0, 3);
         }
       }
@@ -129,40 +117,40 @@ export default function AIAgentCopilot({ products: propProducts = [], onOpenComp
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 left-6 z-40 bg-inverse hover:bg-inverse text-ink-inverse p-3.5 rounded-pill shadow-panel border-2 border-accent flex items-center gap-3 transition transform hover:scale-105 group"
+          className="fixed bottom-6 left-6 z-40 bg-slate-900 hover:bg-slate-800 text-white p-3.5 rounded-full shadow-2xl border-2 border-blue-500 flex items-center gap-3 transition transform hover:scale-105 group"
         >
           <div className="relative">
-            <Bot className="w-6 h-6 text-accent group-hover:rotate-12 transition" />
-            <span className="w-2.5 h-2.5 rounded-pill bg-success absolute -top-1 -right-1 animate-ping" />
+            <Bot className="w-6 h-6 text-blue-400 group-hover:rotate-12 transition" />
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 absolute -top-1 -right-1 animate-ping" />
           </div>
           <div className="text-left hidden sm:block">
-            <span className="block text-xs font-black tracking-wider text-ink-inverse">AI SHOPPING ASSISTANT</span>
-            <span className="block text-[10px] text-accent font-mono">Live Catalog • Comparison Ready</span>
+            <span className="block text-xs font-black tracking-wider text-white">AI SHOPPING ASSISTANT</span>
+            <span className="block text-[10px] text-blue-400 font-mono">Live Catalog • Comparison Ready</span>
           </div>
         </button>
       )}
 
       {/* AI AGENT CHAT WINDOW */}
       {isOpen && (
-        <div className="fixed bottom-6 left-6 z-50 w-96 sm:w-[420px] max-w-[calc(100vw-2rem)] bg-inverse border border-line-strong text-ink-inverse rounded-panel shadow-panel overflow-hidden flex flex-col h-[560px] animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed bottom-6 left-6 z-50 w-96 sm:w-[420px] max-w-[calc(100vw-2rem)] bg-slate-950 border border-slate-800 text-slate-100 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[560px] animate-in fade-in slide-in-from-bottom-4 duration-300">
           
           {/* Header */}
-          <div className="bg-surface-sunken p-4 border-b border-line-strong flex items-center justify-between">
+          <div className="bg-slate-900 p-4 border-b border-slate-800 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-card bg-inverse border border-accent/40 flex items-center justify-center">
-                <Bot className="w-5 h-5 text-accent" />
+              <div className="w-9 h-9 rounded-xl bg-slate-950 border border-blue-500/40 flex items-center justify-center">
+                <Bot className="w-5 h-5 text-blue-400" />
               </div>
               <div>
-                <h4 className="font-extrabold text-xs text-ink-inverse flex items-center gap-1.5">
-                  RentalMoney AI Copilot <span className="bg-accent text-white text-[9px] font-mono px-1.5 py-0.2 rounded font-black">Live</span>
+                <h4 className="font-extrabold text-xs text-white flex items-center gap-1.5">
+                  RentalMoney AI Copilot <span className="bg-blue-600 text-white text-[9px] font-mono px-1.5 py-0.5 rounded font-black">Live</span>
                 </h4>
-                <span className="text-[10px] text-ink-subtle font-mono">{products.length} Products Loaded</span>
+                <span className="text-[10px] text-slate-400 font-mono">{products.length} Products Loaded</span>
               </div>
             </div>
 
             <button
               onClick={() => setIsOpen(false)}
-              className="text-ink-subtle hover:text-ink-inverse p-1 rounded-pill hover:bg-inverse transition"
+              className="text-slate-400 hover:text-white p-1.5 rounded-full hover:bg-slate-800 transition"
             >
               <X className="w-5 h-5" />
             </button>
@@ -176,10 +164,10 @@ export default function AIAgentCopilot({ products: propProducts = [], onOpenComp
                 className={`flex flex-col space-y-2 ${m.sender === 'user' ? 'items-end' : 'items-start'}`}
               >
                 <div
-                  className={`p-3.5 rounded-card max-w-[90%] leading-relaxed font-medium ${
+                  className={`p-3.5 rounded-2xl max-w-[90%] leading-relaxed font-medium ${
                     m.sender === 'user'
-                      ? 'bg-accent text-white rounded-br-chip font-semibold'
-                      : 'bg-surface-sunken text-ink-inverse border border-line-strong rounded-bl-chip'
+                      ? 'bg-blue-600 text-white rounded-br-sm font-semibold'
+                      : 'bg-slate-900 text-slate-100 border border-slate-800 rounded-bl-sm'
                   }`}
                 >
                   {m.text}
@@ -187,47 +175,47 @@ export default function AIAgentCopilot({ products: propProducts = [], onOpenComp
 
                 {/* INLINE PRODUCT COMPARISON TABLE */}
                 {m.comparisonTable && m.comparisonTable.length > 0 && (
-                  <div className="w-full bg-surface-sunken border border-line-strong rounded-card p-3 overflow-x-auto space-y-2">
-                    <div className="flex items-center justify-between text-[11px] font-black text-accent border-b border-line-strong pb-2">
+                  <div className="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 overflow-x-auto space-y-2">
+                    <div className="flex items-center justify-between text-[11px] font-black text-blue-400 border-b border-slate-800 pb-2">
                       <span className="flex items-center gap-1"><Scale className="w-3.5 h-3.5" /> Product Comparison Matrix</span>
-                      <span className="text-[9px] text-ink-subtle">{m.comparisonTable.length} Items</span>
+                      <span className="text-[9px] text-slate-400">{m.comparisonTable.length} Items</span>
                     </div>
 
                     <table className="w-full text-left text-[11px]">
                       <thead>
-                        <tr className="border-b border-line-strong text-ink-subtle font-bold">
+                        <tr className="border-b border-slate-800 text-slate-400 font-bold">
                           <th className="py-1.5 px-2">Attribute</th>
                           {m.comparisonTable.map(p => (
                             <th key={p.id} className="py-1.5 px-2 font-black text-white min-w-[90px]">{p.title.split(' ')[0]}</th>
                           ))}
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-line-strong/50">
+                      <tbody className="divide-y divide-slate-800">
                         <tr>
-                          <td className="py-1.5 px-2 font-bold text-ink-subtle">Price</td>
+                          <td className="py-1.5 px-2 font-bold text-slate-400">Price</td>
                           {m.comparisonTable.map(p => (
-                            <td key={p.id} className="py-1.5 px-2 font-black text-accent">₹{Number(p.price).toLocaleString('en-IN')}</td>
+                            <td key={p.id} className="py-1.5 px-2 font-black text-blue-400">₹{Number(p.price).toLocaleString('en-IN')}</td>
                           ))}
                         </tr>
                         <tr>
-                          <td className="py-1.5 px-2 font-bold text-ink-subtle">Rating</td>
+                          <td className="py-1.5 px-2 font-bold text-slate-400">Rating</td>
                           {m.comparisonTable.map(p => (
-                            <td key={p.id} className="py-1.5 px-2 font-bold text-warning">★ {p.rating || 4.5}</td>
+                            <td key={p.id} className="py-1.5 px-2 font-bold text-amber-400">★ {p.rating || 4.5}</td>
                           ))}
                         </tr>
                         <tr>
-                          <td className="py-1.5 px-2 font-bold text-ink-subtle">Category</td>
+                          <td className="py-1.5 px-2 font-bold text-slate-400">Category</td>
                           {m.comparisonTable.map(p => (
-                            <td key={p.id} className="py-1.5 px-2 text-ink-subtle truncate max-w-[80px]">{p.categoryName || 'General'}</td>
+                            <td key={p.id} className="py-1.5 px-2 text-slate-300 truncate max-w-[80px]">{p.categoryName || 'General'}</td>
                           ))}
                         </tr>
                         <tr>
-                          <td className="py-1.5 px-2 font-bold text-ink-subtle">Action</td>
+                          <td className="py-1.5 px-2 font-bold text-slate-400">Action</td>
                           {m.comparisonTable.map(p => (
                             <td key={p.id} className="py-1.5 px-2">
                               <button
                                 onClick={() => onAddToCart(p)}
-                                className="px-2 py-1 bg-accent hover:bg-accent-hover text-white rounded text-[10px] font-bold transition flex items-center gap-1"
+                                className="px-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded text-[10px] font-bold transition flex items-center gap-1"
                               >
                                 <ShoppingBag className="w-3 h-3" /> Add
                               </button>
@@ -243,18 +231,18 @@ export default function AIAgentCopilot({ products: propProducts = [], onOpenComp
                 {!m.comparisonTable && m.suggestedProducts && m.suggestedProducts.length > 0 && (
                   <div className="w-full space-y-2 pt-1">
                     {m.suggestedProducts.map((p) => (
-                      <div key={p.id} className="bg-surface-sunken p-2.5 rounded-card border border-line-strong flex items-center justify-between gap-3">
-                        <img src={p.images?.[0] || p.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30'} alt={p.title} className="w-12 h-12 object-cover rounded-control shrink-0 border border-line-strong" />
+                      <div key={p.id} className="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex items-center justify-between gap-3">
+                        <img src={p.images?.[0] || p.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30'} alt={p.title} className="w-12 h-12 object-cover rounded-lg shrink-0 border border-slate-800" />
                         <div className="flex-1 min-w-0">
-                          <h5 className="font-bold text-[11px] text-ink-inverse truncate">{p.title}</h5>
+                          <h5 className="font-bold text-[11px] text-white truncate">{p.title}</h5>
                           <div className="flex items-center gap-2 mt-0.5">
-                            <span className="font-black text-xs text-accent">₹{Number(p.price).toLocaleString('en-IN')}</span>
-                            {p.rating && <span className="text-[10px] text-warning font-bold">★ {p.rating}</span>}
+                            <span className="font-black text-xs text-blue-400">₹{Number(p.price).toLocaleString('en-IN')}</span>
+                            {p.rating && <span className="text-[10px] text-amber-400 font-bold">★ {p.rating}</span>}
                           </div>
                         </div>
                         <button
                           onClick={() => onAddToCart(p)}
-                          className="bg-accent hover:bg-accent-hover text-white p-2 rounded-control transition"
+                          className="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg transition"
                           title="Add to Cart"
                         >
                           <ShoppingBag className="w-3.5 h-3.5" />
@@ -265,7 +253,7 @@ export default function AIAgentCopilot({ products: propProducts = [], onOpenComp
                     {m.suggestedProducts.length >= 2 && (
                       <button
                         onClick={() => handleSendMessage(`Compare ${m.suggestedProducts[0].title} vs ${m.suggestedProducts[1].title}`)}
-                        className="w-full py-2 bg-accent/20 hover:bg-accent/30 text-accent font-mono font-bold text-[11px] rounded-control border border-accent/40 flex items-center justify-center gap-1.5 transition"
+                        className="w-full py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-mono font-bold text-[11px] rounded-xl border border-blue-500/30 flex items-center justify-center gap-1.5 transition"
                       >
                         <Scale className="w-3.5 h-3.5" /> Generate Comparison Table
                       </button>
@@ -276,20 +264,20 @@ export default function AIAgentCopilot({ products: propProducts = [], onOpenComp
             ))}
 
             {isTyping && (
-              <div className="flex items-center gap-2 text-ink-subtle font-mono text-[10px] bg-surface-sunken p-2 rounded-control w-fit border border-line-strong">
-                <Bot className="w-3.5 h-3.5 animate-spin text-accent" />
+              <div className="flex items-center gap-2 text-slate-400 font-mono text-[10px] bg-slate-900 p-2 rounded-xl w-fit border border-slate-800">
+                <Bot className="w-3.5 h-3.5 animate-spin text-blue-400" />
                 <span>Searching store inventory...</span>
               </div>
             )}
           </div>
 
           {/* Quick Prompt Chips */}
-          <div className="p-2 border-t border-line-strong bg-surface-sunken flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+          <div className="p-2.5 border-t border-slate-800 bg-slate-900 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
             {suggestedPrompts.map((prompt, idx) => (
               <button
                 key={idx}
                 onClick={() => handleSendMessage(prompt)}
-                className="px-2.5 py-1 rounded-pill bg-inverse hover:bg-surface-sunken text-ink-subtle hover:text-white text-[10px] font-bold whitespace-nowrap shrink-0 border border-line-strong transition"
+                className="px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-bold whitespace-nowrap shrink-0 border border-slate-700 transition"
               >
                 {prompt}
               </button>
@@ -302,18 +290,18 @@ export default function AIAgentCopilot({ products: propProducts = [], onOpenComp
               e.preventDefault();
               handleSendMessage();
             }}
-            className="p-3 border-t border-line-strong bg-inverse flex items-center gap-2"
+            className="p-3 border-t border-slate-800 bg-slate-950 flex items-center gap-2"
           >
             <input
               type="text"
               placeholder="Ask AI assistant (e.g. 'Compare top products')..."
               value={inputMsg}
               onChange={(e) => setInputMsg(e.target.value)}
-              className="flex-1 bg-surface-sunken border border-line-strong rounded-pill px-3.5 py-2 text-xs font-semibold text-ink-inverse placeholder-ink-subtle focus:outline-none focus:border-accent"
+              className="flex-1 bg-slate-900 border border-slate-700 rounded-full px-3.5 py-2 text-xs font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
             />
             <button
               type="submit"
-              className="bg-accent hover:bg-accent-hover text-white p-2 rounded-pill font-black transition"
+              className="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-full font-black transition shrink-0"
             >
               <Send className="w-4 h-4" />
             </button>
