@@ -1,15 +1,32 @@
 'use client';
 
 import React from 'react';
-import { Headphones, Zap, Award, Leaf, Sparkles, LayoutGrid } from 'lucide-react';
+import * as Icons from 'lucide-react';
 
 export default function CategoryGrid({ categories, activeCategory, setActiveCategory }) {
-  const renderCategoryIcon = (slug) => {
-    if (slug.includes('electronic')) return <Headphones className="w-6 h-6 text-accent" />;
-    if (slug.includes('footwear')) return <Zap className="w-6 h-6 text-accent" />;
-    if (slug.includes('decor')) return <Award className="w-6 h-6 text-warning" />;
-    if (slug.includes('wellness')) return <Leaf className="w-6 h-6 text-success" />;
-    return <Sparkles className="w-6 h-6 text-danger" />;
+  const renderCategoryIcon = (cat) => {
+    const iconName = cat.iconUrl || cat.icon_url;
+
+    // 1. Image URL icon
+    if (iconName && (iconName.startsWith('http://') || iconName.startsWith('https://'))) {
+      return <img src={iconName} alt={cat.name} className="w-6 h-6 object-contain" />;
+    }
+
+    // 2. Lucide Icon name stored in DB (e.g., "Sparkles", "Shirt", "Zap", "Headphones", "Award", "Leaf")
+    if (iconName && Icons[iconName]) {
+      const IconComponent = Icons[iconName];
+      return <IconComponent className="w-6 h-6 text-accent" />;
+    }
+
+    // 3. Keyword fallbacks based on slug
+    const slug = (cat.slug || '').toLowerCase();
+    if (slug.includes('casual') || slug.includes('shirt') || slug.includes('apparel')) return <Icons.Shirt className="w-6 h-6 text-accent" />;
+    if (slug.includes('electronic') || slug.includes('tech')) return <Icons.Headphones className="w-6 h-6 text-accent" />;
+    if (slug.includes('footwear') || slug.includes('shoe')) return <Icons.Zap className="w-6 h-6 text-accent" />;
+    if (slug.includes('decor') || slug.includes('home')) return <Icons.Award className="w-6 h-6 text-warning" />;
+    if (slug.includes('wellness') || slug.includes('glow')) return <Icons.Leaf className="w-6 h-6 text-success" />;
+
+    return <Icons.Sparkles className="w-6 h-6 text-danger" />;
   };
 
   return (
@@ -59,7 +76,7 @@ export default function CategoryGrid({ categories, activeCategory, setActiveCate
                     : 'bg-surface-muted border-line/80 group-hover:bg-surface group-hover:scale-105'
                 }`}
               >
-                {renderCategoryIcon(cat.slug)}
+                {renderCategoryIcon(cat)}
               </div>
 
               <div>
