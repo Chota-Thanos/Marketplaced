@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@ds/tokens": ["./packages/tokens/dist/tokens.js"],
+      "@ds/brand": ["./packages/brand/index.js"],
+      "@ds/ui": ["./packages/ui/index.js"],
+      "@/*": ["./*"]
+    }
+  },
+  "exclude": ["node_modules", ".next", "laravel-backend"]
+}

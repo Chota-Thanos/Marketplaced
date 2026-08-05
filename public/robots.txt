@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Allow: /product/
+Allow: /category/
+Allow: /reels
+Disallow: /admin
+
+Sitemap: https://bazaarx.in/sitemap.xml

@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+/* Design tokens. Generated from packages/tokens/src/tokens.js — run
+   `npm run tokens:build` after editing that file. Brings in the light/dark
+   custom properties and the Tailwind @theme block, so every colour, radius,
+   shadow and type step in the app traces back to one source. Nothing below
+   re-declares a token value. */
+@import "../packages/tokens/dist/tokens.css";
+
+/* Tailwind v4 scans for class names; the design-system packages live outside
+   app/ and components/, so they have to be registered explicitly or their
+   utilities get tree-shaken out of the build. */
+@source "../packages/ui";
+
+/* next-themes writes class="dark" onto <html>; tell Tailwind to key the
+   `dark:` variant off that rather than the OS preference. Components should
+   rarely need it — the tokens already flip — but escape hatches like images
+   and third-party embeds sometimes do. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ═══════════════════════════════════════════════════════════════
+   BASE
+   ═══════════════════════════════════════════════════════════════ */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background-color: var(--ds-canvas);
+  color: var(--ds-ink);
+  font-family: var(--ds-font-sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ds-scroll-track);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ds-scroll-thumb);
+  border-radius: var(--ds-radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ds-line-strong);
+}
+
+/* Anyone who has asked the OS to reduce motion gets no transforms or
+   animations, including the ones baked into the Button and Card hovers. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes pulse-wave {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.35); opacity: 0.3; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+.animate-voice-wave {
+  animation: pulse-wave 1.8s infinite ease-in-out;
+}

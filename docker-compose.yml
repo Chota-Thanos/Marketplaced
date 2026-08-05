@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bazaarx_postgres
+    environment:
+      POSTGRES_DB: marketplace_db
+      POSTGRES_USER: marketplace_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-MarketplaceSecurePass2026!}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U marketplace_user -d marketplace_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./laravel-backend
+      dockerfile: Dockerfile
+    container_name: bazaarx_backend
+    environment:
+      APP_ENV: production
+      APP_DEBUG: 'false'
+      APP_URL: ${APP_URL:-https://api.yourdomain.com}
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: marketplace_db
+      DB_USERNAME: marketplace_user
+      DB_PASSWORD: ${DB_PASSWORD:-MarketplaceSecurePass2026!}
+      SANCTUM_STATEFUL_DOMAINS: ${SANCTUM_DOMAINS:-yourdomain.com,www.yourdomain.com}
+    volumes:
+      - storage_data:/var/www/html/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: always
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.yourdomain.com}
+    container_name: bazaarx_frontend
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - backend
+    restart: always
+
+volumes:
+  pgdata:
+  storage_data:

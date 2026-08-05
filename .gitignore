@@ -1,0 +1,25 @@
+# Dependencies & builds
+node_modules/
+.next/
+dist/
+out/
+build/
+
+# Environment files
+.env
+.env*.local
+
+# Exclude Mobile App (Flutter) from Web repo
+marketplace_app/
+
+# IDE & agent scratch directories
+.agents/
+.claude/
+.windsurf/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Other
+/lib/generated/prisma

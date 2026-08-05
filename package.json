@@ -1,0 +1,33 @@
+{
+  "name": "marketplace-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "tokens:build": "node packages/tokens/build.mjs",
+    "dev": "npm run tokens:build && next dev",
+    "build": "npm run tokens:build && next build",
+    "start": "next start",
+    "backend": "cd laravel-backend && \"C:\\laragon\\bin\\php\\php-8.3.30-Win32-vs16-x64\\php.exe\" artisan serve --port=8000",
+    "backend:migrate": "cd laravel-backend && \"C:\\laragon\\bin\\php\\php-8.3.30-Win32-vs16-x64\\php.exe\" artisan migrate",
+    "backend:reset": "cd laravel-backend && \"C:\\laragon\\bin\\php\\php-8.3.30-Win32-vs16-x64\\php.exe\" artisan migrate:fresh --seed",
+    "dev:all": "concurrently -n web,api -c cyan,magenta \"npm run dev\" \"npm run backend\""
+  },
+  "dependencies": {
+    "canvas-confetti": "^1.9.3",
+    "lucide-react": "^0.417.0",
+    "next": "latest",
+    "next-themes": "^0.4.6",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "autoprefixer": "^10.5.4",
+    "concurrently": "^10.0.4",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.2.12",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "postcss": "^8.5.25",
+    "tailwindcss": "^4.3.3"
+  }
+}
