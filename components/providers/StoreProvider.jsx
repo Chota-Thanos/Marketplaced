@@ -44,6 +44,14 @@ export function StoreProvider({ children }) {
     return res.data.user;
   };
 
+  const loginWithGoogle = async (idToken) => {
+    const res = await apiFetch('/auth/google', { method: 'POST', body: { id_token: idToken } });
+    setStoredAuth(res.data.token, res.data.user);
+    setAuthToken(res.data.token);
+    setAuthUser(res.data.user);
+    return res.data.user;
+  };
+
   const logout = () => {
     clearStoredAuth();
     setAuthToken(null);
@@ -118,6 +126,7 @@ export function StoreProvider({ children }) {
         authUser,
         login,
         register,
+        loginWithGoogle,
         logout,
         updateAuthUser,
       }}
