@@ -125,11 +125,6 @@ export default function HomeClient({ categories, products, hasReels = false, her
         onClearCompare={() => setCompareList([])}
       />
 
-      {/* 10. FLOATING PROMOTIONAL BOX */}
-      <FloatingPromoBox
-        isVisible={showFloatingPromo}
-        onClose={() => setShowFloatingPromo(false)}
-      />
 
       {/* 11. AI SHOPPING AGENT COPILOT */}
       <AIAgentCopilot
